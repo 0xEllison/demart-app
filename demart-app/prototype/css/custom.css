@@ -1,0 +1,128 @@
+/* DeMart Design System - Custom CSS */
+/* Version 1.0 */
+
+:root {
+    /* 2.1. 主色与辅色 */
+    --bs-primary: #4A90E2;
+    --bs-primary-rgb: 74, 144, 226;
+    --demart-accent: #50E3C2;
+    --demart-accent-rgb: 80, 227, 194;
+
+    /* 2.2. 中性色 */
+    --demart-rich-black: #1A202C;
+    --demart-body-text: #4A5568;
+    --demart-subtle-text: #718096;
+    --demart-border: #E2E8F0;
+    --demart-light-bg: #F7FAFC;
+
+    /* 2.3. 功能色 */
+    --bs-success: #38A169;
+    --bs-warning: #D69E2E;
+    --bs-danger: #E53E3E;
+
+    /* 3.1. 字体家族 */
+    --bs-body-font-family: 'Inter', sans-serif;
+    --bs-body-font-size: 1rem;
+    --bs-body-font-weight: 400;
+    --bs-body-color: var(--demart-body-text);
+
+    /* Bootstrap component overrides */
+    --bs-body-bg: var(--demart-light-bg);
+    --bs-border-color: var(--demart-border);
+    --bs-border-radius: 0.5rem; /* 8px default */
+    --bs-link-color: var(--bs-primary);
+    --bs-link-hover-color: #3B73B5; /* 主色的深色版 */
+}
+
+/* 3.2. 字号层级与样式 */
+h1, .h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--demart-rich-black);
+}
+
+h2, .h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--demart-rich-black);
+}
+
+h3, .h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--demart-rich-black);
+}
+
+h4, .h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--demart-rich-black);
+}
+
+.caption {
+    font-size: 0.875rem;
+    color: var(--demart-subtle-text);
+}
+
+/* 4.1. 按钮样式覆盖 */
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--bs-primary);
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-bg: #3B73B5;
+    --bs-btn-hover-border-color: #3B73B5;
+    --bs-btn-active-bg: #2C5A8D;
+    --bs-btn-active-border-color: #2C5A8D;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+    --bs-btn-color: var(--bs-primary);
+    --bs-btn-bg: var(--bs-white);
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-bg: rgba(var(--bs-primary-rgb), 0.05);
+    --bs-btn-hover-border-color: var(--bs-primary);
+    --bs-btn-active-bg: rgba(var(--bs-primary-rgb), 0.1);
+    --bs-btn-active-border-color: var(--bs-primary);
+}
+
+/* 4.2. 商品卡片样式 */
+.product-card {
+    border-radius: 1rem; /* 16px */
+    border-color: var(--demart-border);
+    background-color: #fff;
+    box-shadow: 0 4px 6px -1px rgba(var(--bs-primary-rgb), 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -4px rgba(var(--bs-primary-rgb), 0.2);
+    border-color: var(--bs-primary);
+}
+
+.product-card .card-img-top {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.product-card .seller-avatar {
+    width: 24px;
+    height: 24px;
+}
+
+/* 4.3. 表单样式 */
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.2);
+} 

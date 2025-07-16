@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>商品详情 - DeMart</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="p-3 mb-3 border-bottom bg-white sticky-top">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a href="index.html" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none h4 fw-bold me-4">
+                    DeMart
+                </a>
+                <form class="w-50 me-lg-auto" role="search">
+                    <input type="search" class="form-control" placeholder="搜索商品..." aria-label="Search">
+                </form>
+                <ul class="nav col-12 col-lg-auto me-lg-3 mb-2 justify-content-center mb-md-0">
+                    <li><a href="index.html" class="nav-link px-2 link-dark">探索</a></li>
+                    <li><a href="create-product.html" class="nav-link px-2 link-dark">卖东西</a></li>
+                </ul>
+                <div class="dropdown text-end">
+                    <a href="#" class="btn btn-primary">连接钱包</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <!-- Breadcrumbs -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+                <li class="breadcrumb-item"><a href="#">电子产品</a></li>
+                <li class="breadcrumb-item active" aria-current="page">几乎全新的 MacBook Pro 14寸</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5 mt-2">
+            <!-- Left Column: Product Gallery -->
+            <div class="col-lg-7">
+                <img src="images/m3-macbook-air-overhead-2.webp" class="img-fluid rounded-4" alt="商品主图">
+                <!-- Thumbnails can be added here -->
+            </div>
+
+            <!-- Right Column: Product Info & Actions -->
+            <div class="col-lg-5">
+                <h1 class="fw-bold">几乎全新的 MacBook Pro 14寸</h1>
+                <p class="fs-2 fw-bold text-primary my-3">1500.0 USDC</p>
+                
+                <div class="d-grid gap-2 my-4">
+                    <button class="btn btn-primary btn-lg" type="button" style="background-color: var(--demart-accent); border-color: var(--demart-accent);">立即购买</button>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Seller Info -->
+                <div class="card product-card">
+                    <div class="card-body">
+                        <h5 class="card-title">卖家信息</h5>
+                        <div class="d-flex align-items-center mt-3">
+                            <img src="images/avatar-2.png" class="rounded-circle me-3 seller-avatar" alt="卖家头像">
+                            <div>
+                                <a href="profile.html" class="fw-semibold text-dark text-decoration-none">@alex.eth</a>
+                                <div class="caption">
+                                    <i data-feather="star" class="feather-sm" style="fill: #ffc107; color: #ffc107;"></i>
+                                    4.8/5 (125条评价)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="mt-4">
+                    <ul class="list-unstyled">
+                        <li class="d-flex align-items-center mb-2">
+                            <i data-feather="shield" class="text-success me-2"></i>
+                            <span class="caption">资金由智能合约托管，安全有保障</span>
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <i data-feather="users" class="text-success me-2"></i>
+                            <span class="caption">支持去中心化仲裁，公平解决争议</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card product-card">
+                     <div class="card-body">
+                        <h3>商品描述</h3>
+                        <p class="mt-3">
+                            2023年款M2 Pro芯片，16GB内存，512GB固态硬盘。99新，几乎没怎么用过，电池循环次数仅为15次。无任何划痕和磕碰，箱说全。因为公司配了新电脑，所以出掉。
+                        </p>
+                        <ul>
+                            <li>规格1: M2 Pro 芯片</li>
+                            <li>规格2: 16GB 统一内存</li>
+                            <li>规格3: 512GB SSD 存储</li>
+                        </ul>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container py-5">
+        <!-- Footer content from index.html -->
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      feather.replace({
+          width: '1em',
+          height: '1em'
+      })
+    </script>
+</body>
+</html> 
