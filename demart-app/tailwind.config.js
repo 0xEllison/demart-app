@@ -1,7 +1,5 @@
-import { type Config } from "tailwindcss";
-import defaultTheme from "tailwindcss/defaultTheme";
-
-const config = {
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   darkMode: "class",
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -26,11 +24,11 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#4A90E2",
+          DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#50E3C2",
+          DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
@@ -60,7 +58,7 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", ...defaultTheme.fontFamily.sans],
+        sans: ["var(--font-sans)", "Inter", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
@@ -79,6 +77,4 @@ const config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config;
-
-export default config; 
+}; 
