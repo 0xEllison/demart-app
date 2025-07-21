@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { Server as SocketIOServer } from "socket.io";
 import { Server as NetServer } from "http";
 import { NextApiResponse } from "next";
+import { prisma } from "@/lib/prisma";
 
 /**
  * 这个文件处理 Socket.io 的服务器端连接
@@ -51,6 +52,47 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
         // 将消息广播给同一会话中的所有客户端（除了发送者）
         socket.to(conversationId).emit("new-message", data);
         console.log(`Message sent in conversation ${conversationId}`);
+      });
+
+      // 发送系统消息
+      socket.on("send-system-message", async (data) => {
+        const { conversationId, content } = data;
+        
+        try {
+          // 获取会话参与者
+          const participants = await prisma.conversationParticipant.findMany({
+            where: {
+              conversationId,
+            },
+            select: {
+              userId: true,
+            },
+          });
+          
+          if (participants.length >= 2) {
+            // 创建系统消息
+            const systemMessage = await prisma.message.create({
+              data: {
+                content,
+                conversationId,
+                senderId: "system", // 使用特殊ID表示系统消息
+                receiverId: "all", // 发送给所有参与者
+                type: "SYSTEM",
+              },
+            });
+            
+            // 广播系统消息给所有会话参与者
+            io?.to(conversationId).emit("new-system-message", {
+              ...systemMessage,
+              createdAt: systemMessage.createdAt.toISOString(),
+              updatedAt: systemMessage.updatedAt.toISOString(),
+            });
+            
+            console.log(`System message sent in conversation ${conversationId}`);
+          }
+        } catch (error) {
+          console.error("发送系统消息失败:", error);
+        }
       });
 
       // 断开连接

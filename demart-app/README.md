@@ -46,33 +46,32 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 | **浏览历史模块** | ✅ 已完成 | 实现了完整的浏览历史功能，包括：<br>- 自动记录用户浏览的商品<br>- 浏览历史页面展示<br>- 清空全部记录和删除单条记录功能<br>- 导航栏入口 |
 | **基础UI组件库** | ✅ 已完成 | 基于shadcn/ui实现了按钮、卡片、头像、表单等基础组件，符合设计规范。 |
 | **导航与布局** | ✅ 已完成 | 实现了响应式的导航栏和基础页面布局。 |
+| **即时聊天功能** | ✅ 已完成 | 实现了基于WebSocket的实时聊天功能，包括：<br>- 文本消息收发<br>- 系统消息通知<br>- 会话列表与详情页<br>- 商品关联聊天<br>- 从聊天中发起购买 |
 
 ### 9.2. 进行中的功能 (In Progress)
 
 | 功能模块 | 状态 | 说明 |
 | :--- | :--- | :--- |
-| **图片资源管理** | 🔄 进行中 | 修复图片加载错误问题，优化图片资源的加载和展示。 |
 | **用户认证系统** | 🔄 进行中 | 基于NextAuth.js实现邮箱注册登录功能。 |
+| **商品发布与管理** | 🔄 进行中 | 实现商品发布、编辑和管理功能。 |
 
 ### 9.3. 待开发功能 (Pending Features)
 
 | 功能模块 | 优先级 | 说明 |
 | :--- | :--- | :--- |
-| **即时聊天功能** | 高 | 实现基于WebSocket的实时聊天功能，支持文本和图片消息。 |
-| **商品发布与管理** | 高 | 实现商品发布、编辑和管理功能。 |
 | **用户资料管理** | 中 | 实现用户个人资料编辑和地址管理功能。 |
 | **订单与支付流程** | 中 | 实现订单创建和模拟支付流程。 |
 | **评价与信誉系统** | 低 | 实现交易后的互评功能和信誉分计算。 |
 
 ### 9.4. 已知问题 (Known Issues)
 
-1. **图片加载错误**: 部分图片资源无法正确加载，控制台显示错误: "The requested resource isn't a valid image for /images/logo-design-service.jpg received text/html; charset=utf-8"
-2. **Next.js配置警告**: "The 'images.domains' configuration is deprecated. Please use 'images.remotePatterns' configuration instead."
+1. ~~**图片加载错误**: 部分图片资源无法正确加载，控制台显示错误: "The requested resource isn't a valid image for /images/logo-design-service.jpg received text/html; charset=utf-8"~~ (已修复)
+2. ~~**Next.js配置警告**: "The 'images.domains' configuration is deprecated. Please use 'images.remotePatterns' configuration instead."~~ (已修复)
+3. **Prisma模型错误**: 一些API路由中存在与Prisma模型不匹配的类型错误，需要进一步修复。
 
 ### 9.5. 下一步计划 (Next Steps)
 
-1. 修复图片加载错误问题
-2. 更新Next.js图片配置，使用remotePatterns替代domains
-3. 完善用户认证系统
-4. 开始实现即时聊天功能
-5. 开发商品发布与管理功能
+1. 修复Prisma模型错误
+2. 完善用户认证系统
+3. 开发商品发布与管理功能
+4. 实现订单与支付流程

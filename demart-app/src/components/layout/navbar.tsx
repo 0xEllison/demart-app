@@ -13,12 +13,22 @@ import {
   LogOut, 
   LogIn, 
   UserPlus,
-  Home
+  Home,
+  ShoppingCart
 } from "lucide-react"
+import { useCart } from "@/lib/cart-context"
+import { useEffect, useState } from "react"
 
 export function Navbar() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
+  const { itemCount } = useCart()
+  const [isClient, setIsClient] = useState(false)
+
+  // 确保在客户端渲染
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // 获取用户首字母用于头像
   const getUserInitial = (user: any) => {
@@ -61,6 +71,22 @@ export function Navbar() {
             >
               <History className="h-4 w-4" />
               <span>浏览记录</span>
+            </Link>
+            
+            <Link 
+              href="/cart" 
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm font-medium transition-colors hover:bg-muted relative",
+                isActive("/cart") ? "text-primary bg-muted" : "text-foreground/80"
+              )}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              <span>购物车</span>
+              {isClient && itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
             </Link>
             
             {status === "loading" && (

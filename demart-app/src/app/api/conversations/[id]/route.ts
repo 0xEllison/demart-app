@@ -1,37 +1,45 @@
-import { getServerSession } from "next-auth"
-import { NextResponse } from "next/server"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { prisma } from "@/lib/prisma";
 
-// 获取单个会话
+/**
+ * 获取单个会话详情
+ */
 export async function GET(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return new NextResponse("Unauthorized", { status: 401 })
+      return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
-    // 验证用户是否是会话的参与者
+    const conversationId = params.id;
+
+    // 检查会话是否存在，并且当前用户是否是参与者
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: params.id,
+        id: conversationId,
         participants: {
           some: {
-            id: session.user.id
-          }
-        }
+            userId: session.user.id,
+          },
+        },
       },
       include: {
         participants: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          }
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
         },
         product: {
           select: {
@@ -39,18 +47,29 @@ export async function GET(
             title: true,
             images: true,
             price: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
 
     if (!conversation) {
-      return new NextResponse("Conversation not found", { status: 404 })
+      return NextResponse.json({ error: "会话不存在" }, { status: 404 });
     }
 
-    return NextResponse.json(conversation)
+    // 转换数据格式
+    const formattedConversation = {
+      id: conversation.id,
+      participants: conversation.participants.map((p) => p.user),
+      product: conversation.product,
+      updatedAt: conversation.updatedAt.toISOString(),
+    };
+
+    return NextResponse.json(formattedConversation);
   } catch (error) {
-    console.error("[CONVERSATION_GET_ERROR]", error)
-    return new NextResponse("Internal Error", { status: 500 })
+    console.error("获取会话详情失败:", error);
+    return NextResponse.json(
+      { error: "获取会话详情失败" },
+      { status: 500 }
+    );
   }
 } 

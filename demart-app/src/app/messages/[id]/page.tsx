@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { initSocket, joinConversation, leaveConversation, sendMessage } from "@/lib/socket-client"
 import { Socket } from "socket.io-client"
+import { SystemMessage } from "@/components/messages/system-message"
 
 interface Message {
   id: string
@@ -19,6 +20,7 @@ interface Message {
   senderId: string
   receiverId: string
   isRead: boolean
+  type: "TEXT" | "IMAGE" | "SYSTEM"
   sender: {
     id: string
     name: string
@@ -52,6 +54,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
   const [messageInput, setMessageInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const socketRef = useRef<Socket | null>(null)
+  const [purchasing, setPurchasing] = useState(false)
 
   useEffect(() => {
     // 只有当会话状态确定后才进行操作
@@ -87,6 +90,30 @@ export default function ConversationPage({ params }: { params: { id: string } })
             fetchMessages();
           }
         });
+        
+        // 监听系统消息
+        socketRef.current?.on('new-system-message', (data: {
+          id: string
+          conversationId: string
+          content: string
+          createdAt: string
+          type: "SYSTEM"
+        }) => {
+          if (data.conversationId === params.id) {
+            // 如果是当前会话的系统消息，则添加到消息列表
+            setMessages(prev => [...prev, {
+              ...data,
+              senderId: "system",
+              receiverId: "all",
+              isRead: true,
+              sender: {
+                id: "system",
+                name: "系统",
+                image: ""
+              }
+            }]);
+          }
+        });
       } catch (error) {
         console.error("Socket 初始化失败:", error);
       }
@@ -99,6 +126,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
           // 移除事件监听
           if (socketRef.current) {
             socketRef.current.off('new-message');
+            socketRef.current.off('new-system-message');
           }
         } catch (error) {
           console.error("Socket 清理失败:", error);
@@ -200,6 +228,43 @@ export default function ConversationPage({ params }: { params: { id: string } })
     }
   }
 
+  // 处理立即购买
+  async function handlePurchase() {
+    if (!conversation?.product || !session?.user?.id) return;
+    
+    try {
+      setPurchasing(true);
+      
+      // 创建系统消息，通知卖家有人下单
+      const systemMessage = `${session.user.name || '买家'}点击了"立即购买"按钮`;
+      
+      // 发送系统消息
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          conversationId: params.id,
+          content: systemMessage,
+          receiverId: getOtherParticipant(conversation).id,
+          type: "SYSTEM"
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("发送系统消息失败");
+      }
+      
+      // TODO: 跳转到订单确认页面
+      router.push(`/orders/create?productId=${conversation.product.id}&conversationId=${params.id}`);
+    } catch (error) {
+      console.error("购买流程失败:", error);
+    } finally {
+      setPurchasing(false);
+    }
+  }
+
   function getOtherParticipant(conversation: Conversation) {
     return conversation.participants.find(p => p.id !== session?.user?.id) || conversation.participants[0]
   }
@@ -283,7 +348,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
         {/* 商品信息（如果有） */}
         {conversation.product && (
           <Card className="p-4 mb-4">
-            <Link href={`/products/${conversation.product.id}`} className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
               <div className="relative w-16 h-16 rounded overflow-hidden">
                 <Image
                   src={conversation.product.images[0] || "/placeholder.jpg"}
@@ -293,11 +358,18 @@ export default function ConversationPage({ params }: { params: { id: string } })
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium truncate">{conversation.product.title}</h3>
+                <Link href={`/products/${conversation.product.id}`}>
+                  <h3 className="font-medium truncate hover:underline">{conversation.product.title}</h3>
+                </Link>
                 <p className="text-primary font-bold">¥{conversation.product.price.toLocaleString()}</p>
               </div>
-              <Button>立即购买</Button>
-            </Link>
+              <Button 
+                onClick={handlePurchase}
+                disabled={purchasing}
+              >
+                {purchasing ? "处理中..." : "立即购买"}
+              </Button>
+            </div>
           </Card>
         )}
 
@@ -311,6 +383,17 @@ export default function ConversationPage({ params }: { params: { id: string } })
             <div className="space-y-4">
               {messages.map((message) => {
                 const isCurrentUser = session?.user && message.sender.id === session.user.id
+                
+                // 如果是系统消息，使用系统消息组件
+                if (message.type === "SYSTEM") {
+                  return (
+                    <SystemMessage
+                      key={message.id}
+                      content={message.content}
+                      timestamp={message.createdAt}
+                    />
+                  )
+                }
                 
                 return (
                   <div 

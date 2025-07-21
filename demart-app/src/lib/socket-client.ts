@@ -65,6 +65,18 @@ export function sendMessage(data: {
 }
 
 /**
+ * 发送系统消息
+ */
+export function sendSystemMessage(data: {
+  conversationId: string;
+  content: string;
+}): void {
+  if (socket) {
+    socket.emit("send-system-message", data);
+  }
+}
+
+/**
  * 关闭 Socket.io 连接
  */
 export function closeSocket(): void {

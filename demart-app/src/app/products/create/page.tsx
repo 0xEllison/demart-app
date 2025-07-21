@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FormError } from "@/components/ui/form-error"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 const PRODUCT_CONDITIONS = [
   { value: "全新", label: "全新" },
@@ -32,6 +33,7 @@ export default function CreateProductPage() {
   const [success, setSuccess] = useState("")
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
+  const [images, setImages] = useState<string[]>([])
 
   useEffect(() => {
     // 只有当会话状态确定后才进行操作
@@ -82,22 +84,49 @@ export default function CreateProductPage() {
         condition: formData.get("condition") as string,
         category: formData.get("category") as string,
         tags,
-        // 图片上传功能将在后续实现
-        images: [],
+        images: images.length > 0 ? images : ["/placeholder.jpg"], // 使用上传的图片或默认占位图
       }
 
-      // 这里将来会调用API创建商品
-      console.log("创建商品:", productData)
+      // 验证必填字段
+      if (!productData.title.trim()) {
+        throw new Error("请输入商品标题");
+      }
+      if (!productData.description.trim()) {
+        throw new Error("请输入商品描述");
+      }
+      if (isNaN(productData.price) || productData.price <= 0) {
+        throw new Error("请输入有效的价格");
+      }
+      if (!productData.condition) {
+        throw new Error("请选择商品状态");
+      }
+      if (!productData.category) {
+        throw new Error("请选择商品分类");
+      }
+
+      // 调用API创建商品
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "发布失败，请稍后重试");
+      }
+
+      const data = await response.json();
+      setSuccess("商品发布成功！");
       
-      setSuccess("商品发布成功！")
-      // 模拟成功后跳转
-      setTimeout(() => {
-        router.push("/products")
-      }, 1500)
+      // 成功后跳转到商品详情页
+      router.push(`/products/${data.id}`);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "发布失败，请稍后重试")
+      setError(error instanceof Error ? error.message : "发布失败，请稍后重试");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -228,12 +257,15 @@ export default function CreateProductPage() {
               <label className="text-sm font-medium leading-none">
                 商品图片
               </label>
-              <div className="border-2 border-dashed border-muted rounded-md p-8 text-center">
-                <p className="text-muted-foreground mb-2">点击或拖拽上传图片</p>
-                <p className="text-xs text-muted-foreground">
-                  图片上传功能即将推出
-                </p>
-              </div>
+              <ImageUpload 
+                value={images}
+                onChange={setImages}
+                disabled={loading}
+                maxImages={5}
+              />
+              <p className="text-xs text-muted-foreground">
+                上传清晰的商品照片可以提高成交率
+              </p>
             </div>
 
             {error && <FormError message={error} />}

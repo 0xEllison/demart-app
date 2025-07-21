@@ -2,29 +2,47 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { Avatar } from "@/components/ui/avatar"
 
 interface ProductCardProps {
   product: {
-    id: number
-    title: string
-    price: string
-    currency: string
-    image: string
+    id: string;
+    title: string;
+    price: number;
+    currency: string;
+    images: string[];
     seller: {
-      name: string
-      avatar: string
-      rating: number
-    }
+      id: string;
+      name: string | null;
+      image: string | null;
+    };
   }
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  // 获取显示用的图片URL
+  const imageUrl = product.images && product.images.length > 0 
+    ? product.images[0] 
+    : "/placeholder.jpg";
+
+  // 商品价格格式化
+  const formattedPrice = product.price.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  // 卖家名称，如果为null则显示默认文本
+  const sellerName = product.seller?.name || "匿名卖家";
+
+  // 获取卖家名称的首字母，用于头像的fallback
+  const sellerInitial = sellerName ? sellerName.charAt(0).toUpperCase() : "?";
+
   return (
     <Link href={`/products/${product.id}`} className="block">
       <div className="border rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white flex flex-col h-full">
         <div className="aspect-square relative bg-slate-50">
           <Image
-            src={product.image}
+            src={imageUrl}
             alt={product.title}
             fill
             className="object-cover"
@@ -47,27 +65,18 @@ export function ProductCard({ product }: ProductCardProps) {
             </h3>
             {/* 使用 tabular-nums 确保数字等宽对齐 */}
             <p className="text-primary font-bold text-base tabular-nums">
-              {parseFloat(product.price).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })} {product.currency}
+              {formattedPrice} {product.currency}
             </p>
           </div>
           <div className="flex items-center gap-1.5 pt-2 mt-2 border-t border-slate-100">
-            <div className="relative w-5 h-5 rounded-full overflow-hidden bg-slate-50">
-              <Image
-                src={product.seller.avatar}
-                alt={product.seller.name}
-                fill
-                className="object-cover"
-                sizes="20px"
-              />
-            </div>
+            <Avatar 
+              src={product.seller?.image || ""} 
+              alt={sellerName}
+              className="w-5 h-5"
+              fallbackText={sellerInitial}
+            />
             <span className="text-xs text-muted-foreground flex-1 truncate">
-              @{product.seller.name}
-            </span>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              ⭐ {product.seller.rating.toFixed(1)}
+              @{sellerName}
             </span>
           </div>
         </div>

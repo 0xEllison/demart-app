@@ -2,7 +2,14 @@
 const nextConfig = {
   /* config options here */
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   webpack: (config) => {
     config.externals.push({
