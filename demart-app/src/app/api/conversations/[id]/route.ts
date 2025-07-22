@@ -47,6 +47,7 @@ export async function GET(
             title: true,
             images: true,
             price: true,
+            sellerId: true,
           },
         },
       },

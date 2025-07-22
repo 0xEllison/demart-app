@@ -14,7 +14,8 @@ import {
   LogIn, 
   UserPlus,
   Home,
-  ShoppingCart
+  ShoppingCart,
+  Package
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { useEffect, useState } from "react"
@@ -104,6 +105,16 @@ export function Navbar() {
                 >
                   <PlusCircle className="h-4 w-4" />
                   <span>发布商品</span>
+                </Link>
+                <Link 
+                  href="/orders" 
+                  className={cn(
+                    "flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm font-medium transition-colors hover:bg-muted",
+                    isActive("/orders") ? "text-primary bg-muted" : "text-foreground/80"
+                  )}
+                >
+                  <Package className="h-4 w-4" />
+                  <span>我的订单</span>
                 </Link>
                 <Link 
                   href="/messages" 

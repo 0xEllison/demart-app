@@ -40,6 +40,7 @@ interface Conversation {
     title: string
     images: string[]
     price: number
+    sellerId: string
   } | null
   updatedAt: string
 }
@@ -55,6 +56,8 @@ export default function ConversationPage({ params }: { params: { id: string } })
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const socketRef = useRef<Socket | null>(null)
   const [purchasing, setPurchasing] = useState(false)
+  const [showPriceEdit, setShowPriceEdit] = useState(false)
+  const [newPrice, setNewPrice] = useState("")
 
   useEffect(() => {
     // 只有当会话状态确定后才进行操作
@@ -256,12 +259,63 @@ export default function ConversationPage({ params }: { params: { id: string } })
         throw new Error("发送系统消息失败");
       }
       
-      // TODO: 跳转到订单确认页面
+      // 跳转到订单确认页面
       router.push(`/orders/create?productId=${conversation.product.id}&conversationId=${params.id}`);
     } catch (error) {
       console.error("购买流程失败:", error);
     } finally {
       setPurchasing(false);
+    }
+  }
+
+  // 处理价格修改
+  async function handlePriceChange() {
+    if (!conversation?.product || !session?.user?.id || !newPrice.trim()) return;
+    
+    const price = parseFloat(newPrice);
+    if (isNaN(price) || price <= 0) {
+      alert("请输入有效的价格");
+      return;
+    }
+
+    try {
+      // 创建系统消息，通知买家价格变更
+      const systemMessage = `卖家已将价格修改为 ¥${price.toLocaleString()}`;
+      
+      // 发送系统消息
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          conversationId: params.id,
+          content: systemMessage,
+          receiverId: getOtherParticipant(conversation).id,
+          type: "SYSTEM"
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("发送系统消息失败");
+      }
+      
+      // 更新本地商品价格显示
+      setConversation(prev => prev ? {
+        ...prev,
+        product: prev.product ? { ...prev.product, price } : null
+      } : null);
+      
+      // 清空价格输入并隐藏编辑框
+      setNewPrice("");
+      setShowPriceEdit(false);
+      
+      // 刷新消息列表
+      const messageData = await response.json();
+      setMessages(prev => [...prev, messageData]);
+    } catch (error) {
+      console.error("修改价格失败:", error);
+      alert("修改价格失败");
     }
   }
 
@@ -348,7 +402,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
         {/* 商品信息（如果有） */}
         {conversation.product && (
           <Card className="p-4 mb-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-start gap-4">
               <div className="relative w-16 h-16 rounded overflow-hidden">
                 <Image
                   src={conversation.product.images[0] || "/placeholder.jpg"}
@@ -361,14 +415,67 @@ export default function ConversationPage({ params }: { params: { id: string } })
                 <Link href={`/products/${conversation.product.id}`}>
                   <h3 className="font-medium truncate hover:underline">{conversation.product.title}</h3>
                 </Link>
-                <p className="text-primary font-bold">¥{conversation.product.price.toLocaleString()}</p>
+                
+                {/* 价格显示和编辑 */}
+                {showPriceEdit ? (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-sm text-gray-600">修改价格:</span>
+                    <Input
+                      type="number"
+                      value={newPrice}
+                      onChange={(e) => setNewPrice(e.target.value)}
+                      placeholder={conversation.product.price.toString()}
+                      className="w-20 h-7 text-sm"
+                    />
+                    <span className="text-sm text-gray-600">元</span>
+                    <Button
+                      size="sm"
+                      onClick={handlePriceChange}
+                      disabled={!newPrice.trim()}
+                    >
+                      确认
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowPriceEdit(false);
+                        setNewPrice("");
+                      }}
+                    >
+                      取消
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-primary font-bold">¥{conversation.product.price.toLocaleString()}</p>
+                    {/* 只有卖家才能修改价格 */}
+                    {session?.user?.id === conversation.product.sellerId && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setShowPriceEdit(true);
+                          setNewPrice(conversation.product!.price.toString());
+                        }}
+                        className="text-xs text-gray-500 hover:text-gray-700 h-auto p-1"
+                      >
+                        修改价格
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
-              <Button 
-                onClick={handlePurchase}
-                disabled={purchasing}
-              >
-                {purchasing ? "处理中..." : "立即购买"}
-              </Button>
+              
+              {/* 立即购买按钮 */}
+              {!showPriceEdit && (
+                <Button 
+                  onClick={handlePurchase}
+                  disabled={purchasing}
+                >
+                  {purchasing ? "处理中..." : "立即购买"}
+                </Button>
+              )}
             </div>
           </Card>
         )}

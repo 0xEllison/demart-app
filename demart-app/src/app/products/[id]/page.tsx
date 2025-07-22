@@ -10,7 +10,7 @@ import { addToBrowseHistory } from "@/lib/browse-history"
 import { useSession } from "next-auth/react"
 import { ImageCarousel } from "@/components/ui/image-carousel"
 import { useCart } from "@/lib/cart-context"
-import { ShoppingCartIcon } from "lucide-react"
+import { ShoppingCartIcon, ShoppingBag } from "lucide-react"
 
 // 获取用户首字母用于头像
 const getUserInitial = (name: string | null) => {
@@ -146,6 +146,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleDirectBuy = () => {
+    if (status !== "authenticated") {
+      router.push("/login");
+      return;
+    }
+    
+    // 跳转到订单创建页面
+    router.push(`/orders/create?productId=${product.id}`);
+  };
+
   // 处理添加到购物车
   const handleAddToCart = () => {
     if (!product) return;
@@ -224,23 +234,34 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </Card>
 
           {/* 操作按钮 */}
-          <div className="flex space-x-4">
+          <div className="space-y-3">
             <Button 
-              className="flex-1" 
+              className="w-full" 
               onClick={handleChatClick}
               disabled={isCreatingChat}
             >
-              {isCreatingChat ? "创建会话中..." : "聊一聊"}
+              {isCreatingChat ? "创建会话中..." : "💬 聊一聊"}
             </Button>
-            <Button 
-              variant={addedToCart ? "outline" : "default"}
-              className="flex-1 flex items-center justify-center gap-2" 
-              onClick={handleAddToCart}
-              disabled={addedToCart}
-            >
-              <ShoppingCartIcon className="h-4 w-4" />
-              {addedToCart ? "已加入购物车" : "加入购物车"}
-            </Button>
+            
+            <div className="flex space-x-3">
+              <Button 
+                variant={addedToCart ? "outline" : "secondary"}
+                className="flex-1 flex items-center justify-center gap-2" 
+                onClick={handleAddToCart}
+                disabled={addedToCart}
+              >
+                <ShoppingCartIcon className="h-4 w-4" />
+                {addedToCart ? "已加入购物车" : "加入购物车"}
+              </Button>
+              
+              <Button 
+                className="flex-1 flex items-center justify-center gap-2" 
+                onClick={handleDirectBuy}
+              >
+                <ShoppingBag className="h-4 w-4" />
+                立即购买
+              </Button>
+            </div>
           </div>
 
           {/* 商品描述 */}
