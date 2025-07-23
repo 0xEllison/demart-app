@@ -98,6 +98,40 @@ export default function CreateOrderPage() {
     }
   }
 
+  const handleAddressSubmit = async (addressData: {
+    name: string
+    phone: string
+    province: string
+    city: string
+    district: string
+    address: string
+    isDefault: boolean
+  }) => {
+    try {
+      const response = await fetch("/api/user/address", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addressData)
+      })
+
+      if (response.ok) {
+        const newAddress = await response.json()
+        // 重新获取地址列表
+        await fetchAddresses()
+        // 如果新地址是默认地址，或者当前没有选中地址，则选中新地址
+        if (newAddress.isDefault || !selectedAddressId) {
+          setSelectedAddressId(newAddress.id)
+        }
+      } else {
+        const error = await response.text()
+        throw new Error(error || "添加地址失败")
+      }
+    } catch (error) {
+      console.error("Error adding address:", error)
+      throw error // 重新抛出错误，让对话框显示错误信息
+    }
+  }
+
   const handleCreateOrder = async () => {
     if (!selectedAddressId) {
       alert("请选择收货地址")
@@ -309,7 +343,7 @@ export default function CreateOrderPage() {
       <AddressDialog
         open={showAddressDialog}
         onOpenChange={setShowAddressDialog}
-        onSuccess={fetchAddresses}
+        onSubmit={handleAddressSubmit}
       />
     </div>
   )

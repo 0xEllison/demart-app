@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Trash2 } from "lucide-react"
+import { Trash2, Clock, ChevronRight } from "lucide-react"
 import { 
   getBrowseHistory, 
   clearBrowseHistory, 
@@ -55,66 +55,80 @@ export default function BrowseHistoryPage() {
   }
 
   return (
-    <div className="container py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">浏览记录</h1>
+    <div className="container py-6 max-w-4xl">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-xl font-bold">浏览记录</h1>
         {historyItems.length > 0 && (
           <Button 
             variant="outline" 
             onClick={handleClearAll}
+            size="sm"
             className="text-destructive hover:text-destructive"
           >
-            清空全部记录
+            清空全部
           </Button>
         )}
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : historyItems.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">暂无浏览记录</p>
-          <Button asChild className="mt-4">
+          <Button asChild className="mt-4" size="sm">
             <Link href="/products">去浏览商品</Link>
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-2">
           {historyItems.map((item) => (
-            <Card key={item.id + item.timestamp} className="overflow-hidden">
-              <div className="relative aspect-square">
+            <Link 
+              href={`/products/${item.id}`} 
+              key={item.id + item.timestamp}
+              className="block"
+            >
+              <Card className="hover:bg-slate-50 transition-colors">
+                <div className="flex items-center p-3">
+                  <div className="relative h-12 w-12 flex-shrink-0 rounded overflow-hidden">
                 <Image
                   src={item.imageUrl || "/placeholder.jpg"}
                   alt={item.title}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      sizes="48px"
                 />
               </div>
-              <div className="p-4">
-                <div className="flex justify-between">
-                  <h3 className="font-medium truncate">{item.title}</h3>
+                  <div className="ml-3 flex-grow min-w-0">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium text-sm truncate pr-2">{item.title}</h3>
+                      <p className="text-primary font-medium text-sm whitespace-nowrap">{item.price.toLocaleString()} 元</p>
+                    </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {formatTime(item.timestamp)}
+                      </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => handleRemoveItem(item.id)}
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveItem(item.id);
+                        }}
                   >
-                    <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                     <span className="sr-only">删除</span>
                   </Button>
                 </div>
-                <p className="text-primary font-bold mt-1">¥{item.price.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  浏览时间: {formatTime(item.timestamp)}
-                </p>
-                <Button asChild className="w-full mt-4" variant="outline">
-                  <Link href={`/products/${item.id}`}>查看详情</Link>
-                </Button>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground ml-2" />
               </div>
             </Card>
+            </Link>
           ))}
         </div>
       )}

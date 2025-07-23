@@ -18,15 +18,15 @@ jest.mock('next/image', () => ({
 
 describe('ProductCard Component', () => {
   const mockProduct = {
-    id: 1,
+    id: '1',
     title: 'Test Product',
-    price: '99.99',
+    price: 99.99,
     currency: 'USDC',
-    image: '/test-image.jpg',
+    images: ['/test-image.jpg'],
     seller: {
+      id: '1',
       name: 'test_seller',
-      avatar: '/test-avatar.jpg',
-      rating: 4.5
+      image: '/test-avatar.jpg'
     }
   };
 
@@ -37,11 +37,10 @@ describe('ProductCard Component', () => {
     expect(screen.getByText('Test Product')).toBeInTheDocument();
     
     // 检查产品价格
-    expect(screen.getByText(/99.99 USDC/)).toBeInTheDocument();
+    expect(screen.getByText('99.99 USDC')).toBeInTheDocument();
     
     // 检查卖家信息
     expect(screen.getByText('@test_seller')).toBeInTheDocument();
-    expect(screen.getByText('⭐ 4.5')).toBeInTheDocument();
   });
 
   it('handles long product titles correctly', () => {
@@ -60,12 +59,12 @@ describe('ProductCard Component', () => {
   it('formats price correctly', () => {
     const priceTestProduct = {
       ...mockProduct,
-      price: '1234.5'
+      price: 1234.5
     };
     
     render(<ProductCard product={priceTestProduct} />);
     
     // 价格应该被格式化为带有千位分隔符和两位小数
-    expect(screen.getByText(/1,234.50 USDC/)).toBeInTheDocument();
+    expect(screen.getByText('1,234.50 USDC')).toBeInTheDocument();
   });
 }); 

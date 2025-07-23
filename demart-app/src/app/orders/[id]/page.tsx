@@ -223,37 +223,36 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   const isSeller = order.seller.id === session?.user?.id
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-6">
+    <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="mb-4">
+        <div className="flex items-center mb-3">
         <Button 
-          variant="outline" 
+            variant="ghost" 
           onClick={() => router.push("/orders")}
-          className="mb-4"
+            size="sm"
+            className="mr-2 p-0 h-8 w-8"
         >
-          ← 返回订单列表
+            ←
         </Button>
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">订单详情</h1>
+          <h1 className="text-xl font-medium">订单详情</h1>
           <Badge 
             variant={statusInfo?.color === "red" ? "destructive" : 
                     statusInfo?.color === "green" ? "default" : "secondary"}
+            className="ml-3"
           >
             {statusInfo?.label || order.status}
           </Badge>
         </div>
-        <p className="text-sm text-gray-600 mt-2">
-          订单号: {order.id}
+        <p className="text-xs text-gray-500">
+          订单号: {order.id.substring(0, 8)}...{order.id.substring(order.id.length - 4)}
         </p>
       </div>
 
       {/* 订单状态 */}
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>订单状态</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 mr-4 text-3xl">
               {order.status === "AWAITING_PAYMENT" && "⏰"}
               {order.status === "PENDING_CONFIRMATION" && "🔄"}
               {order.status === "PAYMENT_CONFIRMED" && "📦"}
@@ -261,27 +260,35 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
               {order.status === "COMPLETED" && "✅"}
               {order.status === "CANCELLED" && "❌"}
             </div>
-            <h3 className="text-xl font-bold mb-2">{statusInfo?.label}</h3>
-            <p className="text-gray-600">{statusInfo?.description}</p>
-            
-            {order.txHash && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">交易哈希:</p>
-                <p className="font-mono text-sm break-all">{order.txHash}</p>
+            <div className="flex-grow">
+              <div className="flex items-center">
+                <h3 className="text-lg font-medium mr-2">{statusInfo?.label}</h3>
+                <Badge 
+                  variant={statusInfo?.color === "red" ? "destructive" : 
+                          statusInfo?.color === "green" ? "default" : "secondary"}
+                  className="ml-2"
+                >
+                  {statusInfo?.label}
+                </Badge>
               </div>
-            )}
+              <p className="text-sm text-gray-600 mt-1">{statusInfo?.description}</p>
+            </div>
           </div>
+          
+          {order.txHash && (
+            <div className="mt-3 p-2 bg-gray-50 rounded-lg text-xs">
+              <p className="text-gray-600 mb-1">交易哈希:</p>
+              <p className="font-mono break-all">{order.txHash}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* 商品信息 */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>商品信息</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex space-x-4">
-            <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-start space-x-3">
+            <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
               {order.product.images[0] && (
                 <img
                   src={order.product.images[0]}
@@ -290,15 +297,16 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                 />
               )}
             </div>
-            <div className="flex-1">
-              <h3 className="font-medium text-lg mb-2">{order.product.title}</h3>
-              <p className="text-sm text-gray-600 mb-2">{order.product.description}</p>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-gray-600">单价: {order.price} {order.currency}</p>
-                  <p className="text-sm text-gray-600">数量: {order.quantity}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-base truncate">{order.product.title}</h3>
+              <p className="text-xs text-gray-600 line-clamp-2 mt-1">{order.product.description}</p>
+              <div className="flex justify-between items-center mt-2">
+                <div className="text-xs text-gray-600">
+                  <span>单价: {order.price} {order.currency}</span>
+                  <span className="mx-2">·</span>
+                  <span>数量: {order.quantity}</span>
                 </div>
-                <p className="text-xl font-bold text-blue-600">
+                <p className="text-sm font-bold text-blue-600">
                   总价: {order.totalAmount} {order.currency}
                 </p>
               </div>
@@ -307,48 +315,82 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         </CardContent>
       </Card>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       {/* 收货信息 */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>收货信息</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p><span className="font-medium">收货人:</span> {order.address.name}</p>
-            <p><span className="font-medium">电话:</span> {order.address.phone}</p>
-            <p><span className="font-medium">地址:</span> {order.address.province}{order.address.city}{order.address.district}{order.address.address}</p>
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-sm font-medium mb-2">收货信息</h3>
+            <div className="space-y-1 text-sm">
+              <p className="flex">
+                <span className="text-gray-500 w-16">收货人:</span> 
+                <span>{order.address.name}</span>
+              </p>
+              <p className="flex">
+                <span className="text-gray-500 w-16">电话:</span> 
+                <span>{order.address.phone}</span>
+              </p>
+              <p className="flex items-start">
+                <span className="text-gray-500 w-16">地址:</span> 
+                <span className="flex-1">{order.address.province}{order.address.city}{order.address.district}{order.address.address}</span>
+              </p>
           </div>
         </CardContent>
       </Card>
 
       {/* 交易信息 */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>交易信息</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p><span className="font-medium">买家:</span> {order.buyer.name}</p>
-            <p><span className="font-medium">卖家:</span> {order.seller.name}</p>
-            <p><span className="font-medium">创建时间:</span> {new Date(order.createdAt).toLocaleString()}</p>
-            <p><span className="font-medium">更新时间:</span> {new Date(order.updatedAt).toLocaleString()}</p>
-            {order.notes && (
-              <div>
-                <p className="font-medium">买家备注:</p>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-md">{order.notes}</p>
-              </div>
-            )}
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-sm font-medium mb-2">交易信息</h3>
+            <div className="space-y-1 text-sm">
+              <p className="flex">
+                <span className="text-gray-500 w-16">买家:</span> 
+                <span>{order.buyer.name}</span>
+              </p>
+              <p className="flex">
+                <span className="text-gray-500 w-16">卖家:</span> 
+                <span>{order.seller.name}</span>
+              </p>
+              <p className="flex">
+                <span className="text-gray-500 w-16">创建时间:</span> 
+                <span>{new Date(order.createdAt).toLocaleString('zh-CN', {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})}</span>
+              </p>
           </div>
         </CardContent>
       </Card>
+      </div>
+      
+      {/* 备注信息 */}
+      {order.notes && (
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-medium mb-2">买家备注</h3>
+            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">{order.notes}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 操作按钮 */}
-      <div className="flex justify-end space-x-4">
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-center">
+            <div className="text-sm">
+              {order.status === "AWAITING_PAYMENT" && isBuyer && (
+                <p className="text-gray-600">请尽快完成支付以确保订单</p>
+              )}
+              {order.status === "PAYMENT_CONFIRMED" && isSeller && (
+                <p className="text-gray-600">买家已完成支付，请尽快发货</p>
+              )}
+              {order.status === "SHIPPED" && isBuyer && (
+                <p className="text-gray-600">卖家已发货，收到商品后请确认</p>
+              )}
+            </div>
+            <div className="flex space-x-3">
         {order.status === "AWAITING_PAYMENT" && isBuyer && (
           <Button
             onClick={handlePayment}
             disabled={processing}
-            size="lg"
+                  size="sm"
+                  className="px-6"
           >
             {processing ? "处理中..." : "立即支付"}
           </Button>
@@ -358,7 +400,8 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
           <Button
             onClick={handleShip}
             disabled={processing}
-            size="lg"
+                  size="sm"
+                  className="px-6"
           >
             {processing ? "处理中..." : "确认发货"}
           </Button>
@@ -368,12 +411,16 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
           <Button
             onClick={handleConfirmReceived}
             disabled={processing}
-            size="lg"
+                  size="sm"
+                  className="px-6"
           >
             {processing ? "处理中..." : "确认收货"}
           </Button>
         )}
       </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
